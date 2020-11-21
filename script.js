@@ -6,9 +6,37 @@ const visualizer = document.getElementById('visualizer')
 
 const context = new AudioContext()
 const analyserNode = new AnalyserNode(context, { fftSize: 256})
+const gainNode = new GainNode(context, {gain: volume.value})
 
+setupEventListeners()
 setupContext()
+resize()
 drawVisualizer()
+
+function setupEventListeners() {
+    window.addEventListener('resize' , resize)
+    
+    volume.addEventListener('input', e => {
+        const value = parseFloat(e.target.value)
+        gainNode.gain.value = value
+    })
+    bass.addEventListener('input', e => {
+        const value = parseFloat(e.target.value)
+        gainNode.gain.value = value
+
+    })
+    mid.addEventListener('input', e => {
+        const value = parseFloat(e.target.value)
+        gainNode.gain.value = value
+
+    })
+    treble.addEventListener('input', e => {
+        const value = parseFloat(e.target.value)
+        gainNode.gain.value = value
+
+    })
+    
+}
 
 async function setupContext() {
     const guitar = await getGuitar()
@@ -17,6 +45,7 @@ async function setupContext() {
     }
     const source = context.createMediaStreamSource(guitar)
     source
+        .connect(gainNode)
         .connect(analyserNode)
         .connect(context.destination)
 }
@@ -50,8 +79,14 @@ function drawVisualizer() {
         const y = item / 255 * height / 2
         const x = barWidth * index 
 
-        canvasContext.fillStyle = 'rgb(0,0,0)'
+        canvasContext.fillStyle = `hsl(${y / height * 400}, 100%, 50%)`
         canvasContext.fillRect(x, height - y, barWidth, y)
     })
 
+}
+
+
+function resize() {
+    visualizer.width = visualizer.clientWidth * window.devicePixelRatio
+    visualizer.height = visualizer.clientHeight * window.devicePixelRatio
 }
