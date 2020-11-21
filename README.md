@@ -1,3 +1,4 @@
 # GuitarAmp
+Youtube: https://www.youtube.com/watch?v=eEeUFB1iIDo
 
-
+DISCLAIMER: I DID NOT CREATE THIS FROM SCRATCH I SIMPLY FOLLOWED A TUTORIAL
