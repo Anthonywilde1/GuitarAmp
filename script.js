@@ -7,6 +7,26 @@ const visualizer = document.getElementById('visualizer')
 const context = new AudioContext()
 const analyserNode = new AnalyserNode(context, { fftSize: 256})
 const gainNode = new GainNode(context, {gain: volume.value})
+const bassEQ = new BiquadFilterNode(context, {
+    type: 'lowshelf',
+
+    frequency: 500,
+    gain: bass.value
+})
+const midEQ = new BiquadFilterNode(context, {
+    type: 'peaking',
+    Q: Math.SQRT1_2,
+    frequency: 1500, 
+    gain: mid.value
+})
+
+const trebleEQ = new BiquadFilterNode(context, {
+        type: 'highshelf',
+        frequency: 3000,
+        gain: treble.value
+})
+
+
 
 setupEventListeners()
 setupContext()
@@ -18,21 +38,21 @@ function setupEventListeners() {
     
     volume.addEventListener('input', e => {
         const value = parseFloat(e.target.value)
-        gainNode.gain.value = value
+        gainNode.gain.setTargetAtTime(value, context.currentTime, .01) 
     })
     bass.addEventListener('input', e => {
-        const value = parseFloat(e.target.value)
-        gainNode.gain.value = value
+        const value = parseInt(e.target.value)
+        bassEQ.gain.setTargetAtTime(value, context.currentTime, .01) 
 
     })
     mid.addEventListener('input', e => {
-        const value = parseFloat(e.target.value)
-        gainNode.gain.value = value
+        const value = parseInt(e.target.value)
+        midEQ.gain.setTargetAtTime(value, context.currentTime, .01) 
 
     })
     treble.addEventListener('input', e => {
         const value = parseFloat(e.target.value)
-        gainNode.gain.value = value
+        trebleEQ.gain.setTargetAtTime(value, context.currentTime, .01) 
 
     })
     
@@ -45,6 +65,9 @@ async function setupContext() {
     }
     const source = context.createMediaStreamSource(guitar)
     source
+        .connect(trebleEQ)
+        .connect(midEQ)
+        .connect(bassEQ)
         .connect(gainNode)
         .connect(analyserNode)
         .connect(context.destination)
